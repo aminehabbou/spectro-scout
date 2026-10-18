@@ -17,7 +17,17 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [tab, setTab] = useState('assessment');
   const [showAll, setShowAll] = useState(false);
-  const update = (key, value) => setForm(prev => ({...prev, [key]: value}));
+  // Editing any field converts a loaded sample into a custom use case. Remove the
+  // scenario marker so the rules engine cannot keep returning the sample's canned
+  // assessment, and clear any previous result to avoid showing stale output.
+  const update = (key, value) => {
+    setForm(prev => {
+      const next = {...prev, [key]: value};
+      delete next.scenarioId;
+      return next;
+    });
+    setResult(null);
+  };
   const filled = [form.useCase, form.target, form.matrix].filter(v => v.trim()).length;
   const run = () => { setResult(analyzeCase(form)); setTab('assessment'); };
   const loadExample = (item) => { setForm({useCase:item.useCase,target:item.target,matrix:item.matrix,environment:item.environment,goal:item.goal,reference:item.reference,scenarioId:item.id}); setResult(null); setTab('assessment'); };
